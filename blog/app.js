@@ -7,8 +7,7 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
-//var hello = require('./routes.hello')
-
+var proxy_server = require('./routes/proxy-server');
 var app = express();
 
 // view engine setup
@@ -18,14 +17,18 @@ app.set('view engine', 'jade');
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json({limit: '5000kb'}));
+app.use(bodyParser.urlencoded({limit: '5000kb', extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+//修改post上传文件大小限制
+app.use(bodyParser.text({limit: '5000kb'}));
+app.use(bodyParser.raw({limit: '5000kb'}));
+
 app.use('/', routes);
 app.use('/users', users);
-//app.use('/hello', hello);
+app.use('/proxy-server',proxy_server);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

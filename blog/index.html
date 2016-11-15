@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<title>接口测试</title>
+<meta name="description" content="">
+<meta name="keywords" content="">
+<link href="" rel="stylesheet">
+<script src="scripts/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+    <div>
+        <select id="hotSpotName"></select>
+    </div>
+    <script>
+        // function getHotSpotInfos(hotSpot){
+        //     $.ajax({
+        //         url: 'http://localhost:3000/disney/resources?hotSpot=' + hotSpot,
+        //         dataType: 'json',
+        //         type: 'get'
+        //     })
+        //         .done(function(data){
+        //             data.map((obj) => {
+        //                 console.log(obj.CELL_NAME);
+        //             });
+        //         });
+        // }
+        // $(document).ready(() => {
+        //     initDom();
+        //     initEvent();
+        // });
+        // function initDom(){
+        //     $.ajax({
+        //         url: 'http://localhost:3000/disney/resources/hotspots',
+        //         type: 'get'
+        //     })
+        //         .done((data) => {
+        //             var htmlStr = '';
+        //             data.map((val) => {
+        //                 htmlStr += '<option>' + val + '</option>';
+        //             });
+        //             $('#hotSpotName').html(htmlStr);
+        //         });
+        // }
+        // function initEvent(){
+        //     $('#hotSpotName').on('change',function(){
+        //         var hotSpot = $('option:selected').text();
+        //         getHotSpotInfos(hotSpot);
+        //     });
+        // }
+        function postDataToDB(arr){
+            $.ajax({
+                url: 'http://localhost:3000/shanghai/civicism/insert',
+                type: 'post',
+                dataType: 'json',
+                data: JSON.stringify(arr)
+            })
+                .done(function(data){
+                    console.log(data);
+                });
+        }
+        function getOnlineData(name){
+            var url = 'http://op.juhe.cn/shanghai/' + name + '?key=62318d50db80483fc33977c90a1ab604'
+            $.ajax({
+                url: url,
+                type: 'get'
+            })
+                .done(function(data){
+                    var result = data.result.list;
+                    if(!result.length) return;
+                    var postArr = [];
+                    result.map(function(obj){
+                        var temArr = [];
+                        temArr.push(obj.name);
+                        temArr.push(obj.addr);
+                        postArr.push(temArr);
+                    });
+                    postDataToDB(postArr);
+                });
+        }
+        getOnlineData('child');
+    </script>
+</body>
+</html>
