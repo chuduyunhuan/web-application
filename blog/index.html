@@ -60,26 +60,49 @@
                     console.log(data);
                 });
         }
-        function getOnlineData(name){
+        function getOnlineData(name,type){
             var url = 'http://op.juhe.cn/shanghai/' + name + '?key=62318d50db80483fc33977c90a1ab604'
             $.ajax({
                 url: url,
+                contentType: 'application/json',
                 type: 'get'
             })
                 .done(function(data){
                     var result = data.result.list;
                     if(!result.length) return;
                     var postArr = [];
+                    console.log(name,type);
                     result.map(function(obj){
                         var temArr = [];
                         temArr.push(obj.name);
                         temArr.push(obj.addr);
+                        temArr.push(type);
                         postArr.push(temArr);
                     });
                     postDataToDB(postArr);
                 });
         }
-        getOnlineData('child');
+        function getLocalProxyData(name,type){
+            $.ajax({
+                url: 'http://localhost:3000/proxy-server/juhe/civicism?name=' + name + '&type=' + type,
+                type: 'get'
+            })
+                .done(function(data){
+                    var result = data.result.list;
+                    if(!result.length) return;
+                    var postArr = [];
+                    console.log(name,type);
+                    result.map(function(obj){
+                        var temArr = [];
+                        temArr.push(obj.name);
+                        temArr.push(obj.addr);
+                        temArr.push(type);
+                        postArr.push(temArr);
+                    });
+                    postDataToDB(postArr);
+                });
+        }
+        getLocalProxyData('sport','体育馆');
     </script>
 </body>
 </html>

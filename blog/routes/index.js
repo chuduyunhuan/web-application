@@ -94,7 +94,7 @@ router.get('/disney/resources/hotspots',function(req,res,next){
 	queryRecord(dbName,connection,querySql,callback);
 });
 
-//geolocation的相关接口
+//百度geolocation的相关接口
 router.post('/shanghai/civicism/insert',function(req,res,next){
 	var tableName = 'address';
 
@@ -105,7 +105,7 @@ router.post('/shanghai/civicism/insert',function(req,res,next){
 	}
 	// console.log(dataArr);
 	var connection = connectDB();
-	var insertSql = 'INSERT INTO ' + tableName + '(name,address) VALUES ?';
+	var insertSql = 'INSERT INTO ' + tableName + '(name,address,type) VALUES ?';
 	var callback = function(err,result){
 		if(err){
 			console.log('[QUERY ERROR] - ',err.message);
@@ -123,6 +123,40 @@ router.get('/civicism/address',function(req,res,next){
 	var dbName = 'civicism';
 	var connection = connectDB();
 	var querySql = 'SELECT * FROM ' + tableName + ' WHERE TYPE=\"' + type + '\"';
+	var callback = function (err, result) {
+		if(err){
+			console.log('[QUERY ERROR] - ',err.message);
+			res.send(err);
+			return;
+		}
+		console.log('-------------------------------QUERY FINISHED-------------------------------');
+		// console.log(result);
+		res.send(result);
+	};
+	queryRecord(dbName,connection,querySql,callback);
+});
+router.get('/civicism/types',function(req,res,next){
+	var tableName = 'address';
+	var dbName = 'civicism';
+	var connection = connectDB();
+	var querySql = 'SELECT DISTINCT TYPE FROM ' + tableName + ' WHERE TYPE IS NOT NULL';
+	var callback = function (err, result) {
+		if(err){
+			console.log('[QUERY ERROR] - ',err.message);
+			res.send(err);
+			return;
+		}
+		console.log('-------------------------------QUERY FINISHED-------------------------------');
+		res.send(result);
+	};
+	queryRecord(dbName,connection,querySql,callback);
+});
+router.get('/civicism/address/search',function(req,res,next){
+	var name = decodeURIComponent(req.query.name);
+	var tableName = 'address',
+		dbName = 'civicism';
+	var connection = connectDB();
+	var querySql = 'SELECT * FROM ' + tableName + ' WHERE TYPE IS NOT NULL AND NAME LIKE \"%' + name + '\%"';
 	var callback = function (err, result) {
 		if(err){
 			console.log('[QUERY ERROR] - ',err.message);

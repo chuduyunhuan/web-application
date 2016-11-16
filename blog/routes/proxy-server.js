@@ -61,4 +61,20 @@ router.get('/services/ws/fast_query/area/re/re_cellByHotname',function(req,res,n
 			res.send(JSON.parse(result.text));
 		});
 });
+//代理聚合API接口
+router.get('/juhe/civicism', function(req, res, next) {
+	var name = decodeURIComponent(req.query.name),
+		type = decodeURIComponent(req.query.type),
+		sk = '62318d50db80483fc33977c90a1ab604';
+	superagent.get('http://op.juhe.cn/shanghai/' + name)
+		.query({key: sk})
+		.end(function(err, result) {
+			if (err) {
+				console.log('err:', err);
+				res.send(err);
+				return;
+			}
+			res.send(JSON.parse(result.text));
+		});
+});
  module.exports = router;
