@@ -77,4 +77,57 @@ router.get('/juhe/civicism', function(req, res, next) {
 			res.send(JSON.parse(result.text));
 		});
 });
- module.exports = router;
+//百度地图切片下载
+function downloadMap(x,y,z){
+	var url = 'http://online1.map.bdimg.com/tile/';
+	superagent.get(url)
+		.query({qt: 'tile'})
+		.query({styles: 'pl'})
+		.query({x: x})
+		.query({y: y})
+		.query({z: z})
+		.end(function(err, result) {
+			if (err) {
+				console.log('err:', err);
+				return;
+			}
+			saveFile(result);
+		});
+}
+function saveFile(result){
+	var fs = require('fs');
+	mkdirSync('test',0);
+
+	fs.writeFile('test' + '/' + 'baidu.json', JSON.stringify(result), 'binary', function(err){
+		if(err){
+			console.log("down fail");
+			return;
+		}
+		console.log("down success");
+	});
+	//创建文件夹,允许重复创建
+	function mkdirSync(url,mode,cb){
+		var arr = url.split("/");
+		mode = mode || 0755;
+		cb = cb || function(){};
+		if(arr[0]==="."){
+			arr.shift();
+		}
+		if(arr[0] == ".."){
+			arr.splice(0,2,arr[0]+"/"+arr[1])
+		}
+		function inner(cur){
+			if(!fs.existsSync(cur)){
+				fs.mkdirSync(cur, mode);
+			}
+			if(arr.length){
+				inner(cur + "/"+arr.shift());
+			}else{
+				cb();
+			}
+		}
+		arr.length && inner(arr.shift());
+	}
+}
+// downloadMap(1645,436,13);
+module.exports = router;
