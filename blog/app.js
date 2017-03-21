@@ -7,7 +7,10 @@ var bodyParser = require('body-parser');
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
+//代理模块
 var proxy_server = require('./routes/proxy-server');
+//passport模块,INAS依赖时候用
+var passport = require('passport');
 var app = express();
 
 // view engine setup
@@ -29,6 +32,8 @@ app.use(bodyParser.raw({limit: '5000kb'}));
 app.use('/', routes);
 app.use('/users', users);
 app.use('/proxy-server',proxy_server);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -14,20 +14,20 @@
  
 
  //CORS跨域
- router.all('*',function (req, res, next) {
- 	res.header('Access-Control-Allow-Origin', '*');
- 	res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
- 	res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
- 	// console.log('all methods captured');
- 	METHODS.printTime();
- 	if (req.method == 'OPTIONS') {
- 		//让options请求快速返回
- 		res.send(200);
- 	}
- 	else {
- 		next();
- 	}
- });
+ // router.all('*',function (req, res, next) {
+ // 	res.header('Access-Control-Allow-Origin', '*');
+ // 	res.header('Access-Control-Allow-Headers', 'Content-Type, Content-Length, Authorization, Accept, X-Requested-With , yourHeaderFeild');
+ // 	res.header('Access-Control-Allow-Methods', 'PUT, POST, GET, DELETE, OPTIONS');
+ // 	// console.log('all methods captured');
+ // 	METHODS.printTime();
+ // 	if (req.method == 'OPTIONS') {
+ // 		//让options请求快速返回
+ // 		res.send(200);
+ // 	}
+ // 	else {
+ // 		next();
+ // 	}
+ // });
 //代理百度地址编码接口
 router.get('/baidu/geolocation', function(req, res, next) {
 	var city = decodeURIComponent(req.query.city),
@@ -77,57 +77,70 @@ router.get('/juhe/civicism', function(req, res, next) {
 			res.send(JSON.parse(result.text));
 		});
 });
-//百度地图切片下载
-function downloadMap(x,y,z){
-	var url = 'http://online1.map.bdimg.com/tile/';
-	superagent.get(url)
-		.query({qt: 'tile'})
-		.query({styles: 'pl'})
-		.query({x: x})
-		.query({y: y})
-		.query({z: z})
+
+//代理移动数据管理
+router.get('/INAS/sml/query/lsc-cfg-kpiCalculater', function(req, res, next) {
+	superagent.get('http://10.221.247.7:8080/INAS/sml/query/lsc-cfg-kpiCalculater')
 		.end(function(err, result) {
 			if (err) {
 				console.log('err:', err);
+				res.send(err);
 				return;
 			}
-			saveFile(result);
+			res.send(JSON.parse(result.text));
 		});
-}
-function saveFile(result){
-	var fs = require('fs');
-	mkdirSync('test',0);
-
-	fs.writeFile('test' + '/' + 'baidu.json', JSON.stringify(result), 'binary', function(err){
-		if(err){
-			console.log("down fail");
-			return;
-		}
-		console.log("down success");
-	});
-	//创建文件夹,允许重复创建
-	function mkdirSync(url,mode,cb){
-		var arr = url.split("/");
-		mode = mode || 0755;
-		cb = cb || function(){};
-		if(arr[0]==="."){
-			arr.shift();
-		}
-		if(arr[0] == ".."){
-			arr.splice(0,2,arr[0]+"/"+arr[1])
-		}
-		function inner(cur){
-			if(!fs.existsSync(cur)){
-				fs.mkdirSync(cur, mode);
+});
+router.post('/INAS/sml/query/lsc-cfg-kpiTrend',function(req,res,next){
+	var paras = req.body;
+	superagent.post('http://10.221.247.7:8080/INAS/sml/query/lsc-cfg-kpiTrend')
+		.send(paras)
+		.set('Accept', 'application/json')
+		.end(function(err,result){
+			if (err) {
+				console.log('err:', err);
+				res.send(err);
+				return;
 			}
-			if(arr.length){
-				inner(cur + "/"+arr.shift());
-			}else{
-				cb();
+			res.send(JSON.parse(result.text));
+		});
+});
+//测试INAS依赖
+router.post('/INAS/loginExtension/getCurrentUserTreeResources',function(req,res,next){
+	var paras = JSON.stringify(req.body);
+	superagent.post('http://10.221.247.7:8080/INAS/pages/login.jsp?userName=f44c493daf75554ce0126ea66e6971cd')
+		.end(function(errLogin,resultLogin){
+			if(errLogin){
+				console.log('err:', errLogin);
+				res.send(errLogin);
+				return;
 			}
-		}
-		arr.length && inner(arr.shift());
-	}
-}
-// downloadMap(1645,436,13);
+			// res.send(resultLogin);
+			superagent.post('http://10.221.247.7:8080/INAS/loginExtension/getCurrentUserTreeResources')
+				.send(paras)
+				.set('Accept', 'application/json')
+				.end(function(err,result){
+					if (err) {
+						console.log('err:', err);
+						res.send(err);
+						return;
+					}
+					res.send(JSON.parse(result.text));
+				});
+		});
+});
+//修改用户密码
+router.post('/sml/update/inas-cfg-pwd-update',function(req,res,next){
+	var paras = req.body;
+	superagent.post('http://10.221.235.17:8080/INAS/sml/update/inas-cfg-pwd-update')
+		.send(paras)
+		.set('Accept', 'application/json')
+		.end(function(err,result){
+			if (err) {
+				console.log('err:', err);
+				res.send(err);
+				return;
+			}
+			res.send(JSON.parse(result.text));
+		});
+});
 module.exports = router;
